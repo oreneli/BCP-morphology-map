@@ -8,3 +8,5 @@ DataAgu.py: Data augmentation of images
 SEM-CLIP2.py: build the SEM-CLIP classification model
 
 SEM_CLIP_test.py: used the generated SEM-CLIP model to test new images
+
+Accuracy_SEM_CLIP: plot confusion matrix  
