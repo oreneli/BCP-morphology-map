@@ -20,8 +20,8 @@ def add_noise(image):
 
 
 # Directory where the original  images are stored
-original_images_dir = '/home/oren/Documents/Models/Order_phase/CLIP_class/test2/lines'
-augmented_images_dir = '/home/oren/Documents/Models/Order_phase/CLIP_class/test2/Threshold_aug/All/lines'
+original_images_dir = '/lines/'
+augmented_images_dir = '/lines/Aug/'
 
 # Create directory if it doesn’t exist
 if not os.path.exists(augmented_images_dir):
@@ -57,7 +57,6 @@ for image_file in image_files:
         continue
 
     # Load the original image in grayscale mode
-    #img = Image.open(img_path).convert('L')  # Convert to grayscale if needed
     img = Image.open(img_path)
 
     # Generate augmented images
@@ -69,7 +68,3 @@ for image_file in image_files:
 
         # Save the image
         augmented_img.save(save_path)
-# Example usage:
-#img = cv2.imread('/home/oren/PycharmProjects/GISAXSanalysis/SciAnalysis2/examples/xray/gray/O71_SC_3000_d20_A_x0.000_th0.100_30.00s_1700253_saxs.jpg', cv2.IMREAD_GRAYSCALE)
-#noisy_img = add_noise(img)
-#cv2.imwrite('/home/oren/PycharmProjects/GISAXSanalysis/SciAnalysis2/examples/xray/gray/noisy_image.png', noisy_img)
