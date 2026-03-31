@@ -1,12 +1,7 @@
-# sem_clip_folder_infer.py
-# pip install torch torchvision timm open_clip_torch pillow
-# (pandas NOT required; uses Python csv)
-
 import os
 import csv
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Iterable
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,13 +10,13 @@ import open_clip
 
 
 # =========================
-# CONFIG: EDIT THESE VALUES
+# USER CONFIG
 # =========================
 @dataclass
 class Config:
     ckpt_path: str = r"sem_clip_classifier.pt"        # path to your trained checkpoint
-    input_dir: str = r"/home/oren/Documents/Models/Order_phase/CLIP_class/test4/test_images_all/"     # folder containing images
-    output_csv: str = r"/home/oren/Documents/Models/Order_phase/CLIP_class/test4/sem_clip_results_out3n.csv"         # where to write CSV
+    input_dir: str = r"/test_images_all/"     # folder containing images
+    output_csv: str = r"/sem_clip_results_out.csv"         # where to write CSV
     recursive: bool = True                            # include subfolders
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     valid_exts: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff")
@@ -42,14 +37,14 @@ class PromptBuilder:
         ]
 
         self.states = {
-            # 'lines' ≈ scratches/linear marks (paper uses scratch as example)
+
             "lines": [
                 "line morphology",
                 "line-shaped ",
                 "lamellar structures",
                 "linear pattern "
             ],
-            # 'dots' ≈ particles/spot-like (paper references particulate matter)
+
             "dots": [
                 "dots morphology",
                 "hexagonally ordered dark spots",
@@ -57,7 +52,7 @@ class PromptBuilder:
                 "dots structure",
                 "spot pattern"
             ],
-            # 'mixed' ≈ co-occurrence of both morphologies
+
             "mixed": [
                 "mixed line and dot structure",
                 "combination of lines and dots",
