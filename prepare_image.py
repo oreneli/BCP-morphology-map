@@ -6,11 +6,8 @@ import numpy as np
 # ----------------------------
 # Tunable parameters
 # ----------------------------
-INPUT_DIR = "/home/oren/Documents/Models/Order_phase/CLIP_class/test4/Raw_data/mixed/"
-OUTPUT_DIR = "/home/oren/Documents/Models/Order_phase/CLIP_class/test4/Raw_data/mixed/save/"
-
-import cv2
-import numpy as np
+INPUT_DIR = "/"
+OUTPUT_DIR = "/save/"
 
 # --- Tunables ---
 SEARCH_BOTTOM_FRACTION = 0.30     # search bottom 30%
@@ -62,10 +59,6 @@ def _projection_scan_bottom(img_gray, search_top, min_run_frac=0.6):
     return None
 
 def crop_scale_bar_bottom(img_gray):
-    """
-    Detect a wide bright scale bar along the bottom and crop above it.
-    Falls back to a fixed-pixel bottom trim if confidence is low.
-    """
     h, w = img_gray.shape[:2]
     search_top = int(h * (1.0 - SEARCH_BOTTOM_FRACTION))
     roi = img_gray[search_top:h, 0:w]
