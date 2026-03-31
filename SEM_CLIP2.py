@@ -1,16 +1,11 @@
-# sem_clip_pycharm.py
-# Requires: torch>=2.0, torchvision, timm, open_clip_torch, pillow
-
 import os
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
 import open_clip
 
 
@@ -19,7 +14,7 @@ import open_clip
 # ==========
 @dataclass
 class Config:
-    data_root: str = r"data"  # <-- set to your dataset root (see folder layout below)
+    data_root: str = r"data"  
     save_path: str = "sem_clip_classifier.pt"
     model_name: str = "ViT-B-16"
     pretrained: str = "laion2b_s34b_b88k"
@@ -29,15 +24,15 @@ class Config:
     batch_size: int = 8
     lr: float = 3e-4
     weight_decay: float = 1e-4
-    alpha: float = 0.8  # mixture weight between P_S and P_C (Eq. 23)
-    num_workers: int = 0  # Windows/PyCharm friendly; bump to 2-4 on Linux
+    alpha: float = 0.8  
+    num_workers: int = 0  
 
     # Device
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 CONFIG = Config(
-    data_root=r"/home/oren/Documents/Models/Order_phase/CLIP_class/test4/data/",  #
+    data_root=r"/data/", 
     epochs=20,
     batch_size=8,
     lr=3e-4,
@@ -72,14 +67,14 @@ class PromptBuilder:
         ]
 
         self.states = {
-            # 'lines' ≈ scratches/linear marks (paper uses scratch as example)
+
             "lines": [
                 "line morphology",
                 "line-shaped ",
                 "lamellar structures",
                 "linear pattern "
             ],
-            # 'dots' ≈ particles/spot-like (paper references particulate matter)
+
             "dots": [
                 "dots morphology",
                 "hexagonally ordered dark spots",
@@ -87,7 +82,7 @@ class PromptBuilder:
                 "dots structure",
                 "spot pattern"
             ],
-            # 'mixed' ≈ co-occurrence of both morphologies
+
             "mixed": [
                 "mixed line and dot structure",
                 "combination of lines and dots",
@@ -111,10 +106,7 @@ class PromptBuilder:
 # CLIP multi-level feature extractor
 # ----------------------------
 class CLIPFeaturizer(nn.Module):
-    """
-    Works with both timm-style ViT (visual.trunk.blocks) and OpenAI-style ViT (visual.transformer.resblocks).
-    Captures tokens after blocks [2,5,8,11]; returns 4 tensors, each [B, 1+T, C].
-    """
+
     def __init__(self, clip_model: nn.Module):
         super().__init__()
         self.clip = clip_model
@@ -182,7 +174,7 @@ class CLIPFeaturizer(nn.Module):
                 x = blk(x)
                 if i in self.capture_idx:
                     outs.append(x.clone())
-            outs = [self.norm(o) for o in outs]                      # final norm like ViT forward_features
+            outs = [self.norm(o) for o in outs]                      
             return outs
 
         # OpenAI-style forward
@@ -260,7 +252,6 @@ class SemClipClassifier(nn.Module):
         elif hasattr(v, "patch_embed") and hasattr(getattr(v.patch_embed, "proj", None), "out_channels"):
             img_width = int(v.patch_embed.proj.out_channels)
         else:
-            # Careful probe with a dummy image; handle tuple image_size correctly
             try:
                 H, W = _get_image_hw(v)
                 device = next(v.parameters()).device
@@ -340,7 +331,6 @@ class SemClipClassifier(nn.Module):
 # Training utils
 # ----------------------------
 def build_dataloaders(data_root: str, preprocess, batch_size=8, num_workers=0):
-    # Ensure grayscale images are treated as RGB (CLIP expects 3 channels)
     preprocess_rgb = transforms.Compose(
         [transforms.Lambda(lambda im: im.convert("RGB"))] + list(preprocess.transforms)
     )
@@ -450,7 +440,7 @@ def train_in_pycharm(cfg: Config):
                 "pretrained": cfg.pretrained,
                 "prompts": prompts,
             }, cfg.save_path)
-            print(f"  ✓ Saved best model to {cfg.save_path} (acc={best:.4f})")
+            print(f"Saved best model to {cfg.save_path} (acc={best:.4f})")
 
     print(f"Best val acc: {best:.4f}")
 
