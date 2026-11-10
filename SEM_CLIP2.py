@@ -407,8 +407,8 @@ def train_in_pycharm(cfg: Config):
     # 7) Train loop
     best = 0.0
     for epoch in range(1, cfg.epochs + 1):
-        featurizer.train(False)
-        model.train(True)
+        featurizer.eval()
+        model.train()
 
         running = 0.0
         for imgs, y in train_loader:
