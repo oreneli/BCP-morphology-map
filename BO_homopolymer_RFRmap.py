@@ -163,12 +163,12 @@ if PREDICT_POINTS_CSV is not None:
     out_df['pred_morphology_mean'] = pred_mean
     out_df['pred_morphology_std'] = pred_std
     
-if SAVE_PREDICTIONS_CSV:
-    os.makedirs(OUTDIR, exist_ok=True)
-    out_df.to_csv(
-        os.path.join(OUTDIR, PREDICTIONS_OUTNAME),
-        index=False
-    )
+    if SAVE_PREDICTIONS_CSV:
+     os.makedirs(OUTDIR, exist_ok=True)
+     out_df.to_csv(
+         os.path.join(OUTDIR, PREDICTIONS_OUTNAME),
+         index=False
+     )
 
     # =========================
     # Accuracy evaluation: compare predictions to results_itr*.csv files
