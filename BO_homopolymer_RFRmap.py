@@ -1,4 +1,3 @@
-from skopt import Optimizer
 from skopt.space import Real
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import NearestNeighbors
@@ -21,7 +20,6 @@ TARGET_MORPH = 2   # e.g., 0.85
 RANDOM_STATE = 48
 N_ESTIMATORS = 400
 N_INIT_POINTS = 0      # we seed BO with your (X, y), so 0 here
-N_BO_ITERS = 1        # number of BO proposals (model-guided)
 GRID_N_V, GRID_N_W, GRID_N_S = 10, 10, 10  # 3D map resolution
 OUTDIR = f'/itr{itr}/'           # folder to save plots
 
@@ -31,28 +29,16 @@ V_POINT_TOL = None     # None -> auto tol (~0.75 grid step). Or set a float (e.g
 
 # Active-learning (next-experiment suggestions)
 AL_NUM_SUGGEST = 10     # how many experiments to propose
-AL_POOL = 1000         # size of candidate pool sampled in the domain
+AL_POOL = 1000 
+#KAPPA = 10.0   # size of candidate pool sampled in the domain
 KAPPA = 100.0            # exploration strength (higher => more uncertain points)
 LAMBDA_DIST = 0.8     # bonus for being far from existing data (0..1, normalized space)
 MIN_SEP_NORM = 0.8    # min separation between suggestions in normalized space (0..1)
 SAVE_AL_CSV = True     # save suggestions to CSV
 
-#Tweak KAPPA (more exploration), LAMBDA_DIST (more spatial diversity), MIN_SEP_NORM (less clustering), and AL_POOL (bigger candidate set = better but slower).
-# =========================
-# Cross-validation settings
-# =========================
-RUN_CV = True
-CV_N_SPLITS = 5
-CV_N_REPEATS = 10
-CV_RANDOM_STATE = 48
-SAVE_CV_SUMMARY = True
-CV_SUMMARY_NAME = f'cross_validation_summary_itr_{itr}.csv'
-CV_PREDICTIONS_NAME = f'cross_validation_predictions_itr_{itr}.csv'
-
 # =========================
 # Predict Morphology for external CSV points (V, W, S)
 # =========================
-#PREDICT_POINTS_CSV = None
 PREDICT_POINTS_CSV = f'/itr{itr}/test_it{itr}.csv'
 
 SAVE_PREDICTIONS_CSV = True
@@ -62,7 +48,6 @@ CLIP_TO_DOMAIN = True   # clip points to [V_MIN..V_MAX], [W_MIN..W_MAX], [S_MIN.
 # =========================
 # Accuracy eval vs result CSVs (ordered samples)
 # =========================
-#RESULTS_FOLDER = None
 
 RESULTS_FOLDER = f'//itr{itr}/'
 
@@ -291,42 +276,6 @@ def predict_on_grid(model):
     return model.predict(grid_points).reshape(Vg.shape)
 
 grid_pred_all = rf.predict(grid_points).reshape(Vg.shape)
-
-# =========================
-# Final 3D map
-# =========================
-from matplotlib.lines import Line2D
-
-fig = plt.figure(figsize=(10, 7))
-ax = fig.add_subplot(111, projection='3d')
-sc = ax.scatter(Vg.ravel(), Wg.ravel(), Sg.ravel(),
-                c=grid_pred_all.ravel(), cmap='viridis', s=16, alpha=0.95)
-ax.set_xlabel('Volume (μl)',fontsize=16, labelpad=10); ax.set_ylabel('PMMA wt.', fontsize=16, labelpad=10); ax.set_zlabel('DMF/PGMEA wt. ratio',fontsize=16, labelpad=5)
-ax.tick_params(axis='both', which='major', labelsize=16)
-cbar = plt.colorbar(sc)
-cbar.ax.tick_params(labelsize=16)
-#ax.set_title('Final Predicted Morphology Map' if TARGET_MORPH is None else f'Final Predicted Morphology Map (target ≈ {TARGET_MORPH})')
-
-# Custom legend items
-legend_elements = [
-    Line2D([0], [0], marker='o', color='w', label='Dots',
-           markerfacecolor='purple', markersize=8),
-    Line2D([0], [0], marker='o', color='w', label='Mixed',
-           markerfacecolor='teal', markersize=8),
-    Line2D([0], [0], marker='o',color='w', label='Lines', markerfacecolor='yellow', markersize=8)
-]
-
-# Add legend
-ax.legend(handles=legend_elements,
-          loc='upper center',
-          bbox_to_anchor=(0.5, -0.08),   # (x, y) position relative to axes
-          ncol=3,                        # place all 3 items in one row
-          frameon=False, fontsize=20)                 # optional: removes legend box frame
-
-#plt.colorbar(sc, label='Predicted Morphology')
-#plt.legend()
-plt.tight_layout(); plt.savefig(os.path.join(OUTDIR, 'map_regression_final_paper.png'), dpi=160); plt.close()
-
 
 # ---------------------------------------------------------
 # Stacked contour slices: 3 slices, top 2 more transparent
